@@ -1,0 +1,282 @@
+import type { Policy, PolicyRule } from "./types";
+
+export const RULE_CODES = {
+  CALL_WINDOW: "CALL_WINDOW",
+  CONTACT_ELIGIBILITY: "CONTACT_ELIGIBILITY",
+  AI_DISCLOSURE_IN_SCRIPT: "AI_DISCLOSURE_IN_SCRIPT",
+  AI_DISCLOSURE_SPOKEN: "AI_DISCLOSURE_SPOKEN",
+  NO_THIRD_PARTY_DISCLOSURE: "NO_THIRD_PARTY_DISCLOSURE",
+  NO_PROHIBITED_CONDUCT: "NO_PROHIBITED_CONDUCT",
+} as const;
+
+export const DEFAULT_POLICY: Policy = {
+  id: "policy-collections-in",
+  name: "India collections — voice conduct",
+  version: "2026.10.1",
+  owner: "Compliance",
+  createdAt: "2026-10-20T00:00:00.000Z",
+  disclaimer:
+    "Pramaan enforces a customer-authored policy. It does not provide legal advice and does not certify regulatory compliance. Every citation is a category reference and must be verified against the primary source before use.",
+};
+
+const CITATION_NOTE =
+  "Category reference only. Verify the section against the primary source before relying on it.";
+
+export const DEFAULT_RULES: PolicyRule[] = [
+  {
+    id: "rule-window",
+    code: RULE_CODES.CALL_WINDOW,
+    title: "Call inside the permitted window",
+    phase: "pre_call",
+    kind: "deterministic",
+    severity: "medium",
+    clauseRef: "POL-3.1",
+    citation: "TRAI TCCCPR 2018 — unsolicited commercial communication; calling hours",
+    citationNote: CITATION_NOTE,
+    description:
+      "Outbound calls may only be placed inside the recipient's local calling window and on an allowed weekday. Attempts outside the window are rescheduled, never dialled.",
+    config: {
+      startHour: 8,
+      endHour: 21,
+      allowedWeekdays: [0, 1, 2, 3, 4, 5, 6],
+      fallbackTimeZone: "Asia/Kolkata",
+    },
+  },
+  {
+    id: "rule-eligibility",
+    code: RULE_CODES.CONTACT_ELIGIBILITY,
+    title: "Consent, DND and attempt cap",
+    phase: "pre_call",
+    kind: "deterministic",
+    severity: "high",
+    clauseRef: "POL-2.2",
+    citation:
+      "TRAI TCCCPR 2018 — consent and Do Not Disturb; RBI recovery-conduct directions — contact attempts",
+    citationNote: CITATION_NOTE,
+    description:
+      "A contact is eligible only when consent is on record and fresh, the number is not on the DND list, and fewer than three attempts were made in the last 24 hours.",
+    config: {
+      maxAttemptsPer24h: 3,
+      maxConsentAgeDays: 180,
+    },
+  },
+  {
+    id: "rule-script-disclosure",
+    code: RULE_CODES.AI_DISCLOSURE_IN_SCRIPT,
+    title: "Opening script discloses the AI",
+    phase: "pre_call",
+    kind: "deterministic",
+    severity: "high",
+    clauseRef: "POL-1.1",
+    citation:
+      "RBI recovery-conduct directions — identification of the calling party; TRAI TCCCPR 2018 — caller identification",
+    citationNote: CITATION_NOTE,
+    description:
+      "The campaign's opening script must tell the person answering that they are speaking to an AI assistant. A campaign without that line cannot dial.",
+    config: {
+      requiredAny: [
+        "\\bAI\\b",
+        "artificial intelligence",
+        "virtual assistant",
+        "automated assistant",
+        "digital assistant",
+        "मशीन",
+        "एआई",
+      ],
+    },
+  },
+  {
+    id: "rule-spoken-disclosure",
+    code: RULE_CODES.AI_DISCLOSURE_SPOKEN,
+    title: "AI disclosure is actually spoken",
+    phase: "post_call",
+    kind: "deterministic",
+    severity: "medium",
+    clauseRef: "POL-1.1",
+    citation:
+      "RBI recovery-conduct directions — identification of the calling party; TRAI TCCCPR 2018 — caller identification",
+    citationNote: CITATION_NOTE,
+    description:
+      "The disclosure must appear in one of the first two agent turns, not only in the script. A script that was configured but never spoken is a finding.",
+    config: {
+      withinAgentTurns: 2,
+      requiredAny: [
+        "\\bAI\\b",
+        "artificial intelligence",
+        "virtual assistant",
+        "automated assistant",
+        "digital assistant",
+        "मशीन",
+        "एआई",
+      ],
+    },
+  },
+  {
+    id: "rule-third-party",
+    code: RULE_CODES.NO_THIRD_PARTY_DISCLOSURE,
+    title: "No debt disclosure before verification",
+    phase: "post_call",
+    kind: "semantic",
+    severity: "high",
+    clauseRef: "POL-4.3",
+    citation: "RBI recovery-conduct directions — no disclosure of borrower information to third parties",
+    citationNote: CITATION_NOTE,
+    description:
+      "The agent must not mention the loan, the outstanding amount, an EMI or a due date until the borrower's identity has been verified. Whoever picks up the phone may not be the borrower.",
+    config: {
+      verificationTerms: [
+        "date of birth",
+        "dob",
+        "date of birth",
+        "last four",
+        "last 4",
+        "aadhaar",
+        "aadhar",
+        "pan",
+        "verify",
+        "verification",
+        "janm",
+        "janm tithi",
+        "confirm",
+        "pehchaan",
+      ],
+      sensitiveTerms: [
+        "loan",
+        "emi",
+        "outstanding",
+        "due",
+        "debt",
+        "overdue",
+        "instalment",
+        "installment",
+        "bakaya",
+        "बकाया",
+        "किस्त",
+        "उधार",
+        "karza",
+        "कर्ज़",
+        "payment",
+      ],
+      amountPattern:
+        "(₹|rs\\.?|inr|rupees?|rupaye|रुपये|रु)\\s?\\d|\\d[\\d,.]*\\s?(lakh|lac|crore|hazaar|hazar|thousand|rupees|rupaye)|\\d{1,3}(,\\d{2,3})+",
+      thirdPartyTerms: [
+        "main unka bhai",
+        "main unke bhai",
+        "main unka beta",
+        "main unki wife",
+        "main unke husband",
+        "unka bhai",
+        "unke bhai",
+        "unka beta",
+        "unke beta",
+        "unka ladka",
+        "unke husband",
+        "unke wife",
+        "unka phone",
+        "unke phone",
+        "woh ghar par nahi",
+        "wo ghar par nahi",
+        "he is not here",
+        "she is not here",
+        "wrong number",
+        "galat number",
+        "kis se baat",
+        "who is this",
+      ],
+    },
+  },
+  {
+    id: "rule-conduct",
+    code: RULE_CODES.NO_PROHIBITED_CONDUCT,
+    title: "No threats, false legal claims or abuse",
+    phase: "post_call",
+    kind: "semantic",
+    severity: "critical",
+    clauseRef: "POL-5.1",
+    citation:
+      "RBI recovery-conduct directions — no intimidation, harassment or false representation; BFSI fair-practice codes",
+    citationNote: CITATION_NOTE,
+    description:
+      "No threats of police action, arrest, home visits or seizure; no false claims about legal consequences; no abusive language; no pressure after the person asks not to be called.",
+    config: {
+      threatTerms: [
+        "police",
+        "thana",
+        "thane",
+        "jail",
+        "arrest",
+        "giraftar",
+        "warrant",
+        "fir",
+        "court",
+        "case kar",
+        "legal action",
+        "ghar aa",
+        "ghar pe aa",
+        "recovery agent bhej",
+        "bhej denge",
+        "pakad",
+        "utha ke",
+        "dhamki",
+        "darwaza",
+        "tod denge",
+        "seize",
+        "zabt",
+      ],
+      falseLegalTerms: [
+        "non-bailable",
+        "arrest warrant",
+        "police complaint",
+        "fir darj",
+        "property seize",
+        "seal kar",
+        "court order",
+        "legal notice bhej",
+      ],
+      abuseTerms: [
+        "bewakoof",
+        "pagal",
+        "kutta",
+        "kutiya",
+        "harami",
+        "kamina",
+        "stupid",
+        "idiot",
+        "shut up",
+        "chup",
+        "bakwas",
+        "nonsense",
+      ],
+      optOutTerms: [
+        "mat call",
+        "call mat",
+        "don't call",
+        "do not call",
+        "stop calling",
+        "pareshan",
+        "list se hata",
+        "block kar",
+        "dobara call",
+      ],
+      pressureTerms: [
+        "aapko karna padega",
+        "majboori",
+        "zaroori hai",
+        "nahi to",
+        "warna",
+        "last warning",
+        "final warning",
+        "aaj hi",
+      ],
+      negationTerms: ["nahi", "nahin", "not", "never", "no", "bina", "without"],
+    },
+  },
+];
+
+export function ruleByCode(code: string): PolicyRule | undefined {
+  return DEFAULT_RULES.find((rule) => rule.code === code);
+}
+
+export function getPolicy(): Policy {
+  return DEFAULT_POLICY;
+}
