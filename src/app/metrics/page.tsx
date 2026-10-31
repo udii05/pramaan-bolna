@@ -62,24 +62,36 @@ export default async function MetricsPage() {
           <p className="simple-eyebrow">Measurement</p>
           <h1>Calibration</h1>
           <p>
-            {CALIBRATION_LABELS.length} hand-labelled calls and {GATE_LABELS.length} gate scenarios,
-            evaluated by the same engine that audits production calls. Every number below is
-            computed at request time, not typed into a slide.
+            {CALIBRATION_LABELS.length} synthetic calls we hand-labelled ourselves, and{" "}
+            {GATE_LABELS.length} gate scenarios, evaluated by the same engine that audits production
+            calls. Every number below is computed at request time from the labels in the repo — not
+            typed into a slide.
           </p>
         </div>
-        <span className="simple-data-badge">Computed, not claimed</span>
+        <span className="simple-data-badge">Self-labelled pilot</span>
       </header>
+
+      <div
+        className="simple-notice"
+        style={{ color: "#a85a1c", background: "#fff7ed", borderColor: "#f0d2b6" }}
+      >
+        <span>
+          These are synthetic transcripts labelled by the builder, not an independent benchmark. The
+          labels, the code and the two misses are all in the repo.
+        </span>
+      </div>
 
       <section className="simple-summary-grid" aria-label="Calibration summary">
         <article className="simple-summary-main">
           <span>Post-call precision</span>
           <strong>{formatPercent(calibration.overall.precision)}</strong>
           <p>
-            {truePositives} true positives, {calibration.overall.falsePositives} false positives.
+            {truePositives} true positives, {calibration.overall.falsePositives} false positives
+            against our hand labels.
           </p>
           <div className="simple-progress">
             <span>
-              <b>{truePositives}</b> of {predicted} predictions were correct
+              <b>{truePositives}</b> of {predicted} flags matched the hand labels
             </span>
             <i>
               <em style={{ width: "100%" }} />
@@ -90,8 +102,8 @@ export default async function MetricsPage() {
           <span>Post-call recall</span>
           <strong>{formatPercent(calibration.overall.recall)}</strong>
           <p>
-            {calibration.overall.falseNegatives} known miss, left in the corpus on purpose. It is an
-            implied threat outside the lexicon.
+            {calibration.overall.falseNegatives} known misses, left in the corpus on purpose. They
+            are implied threats outside the lexicon.
           </p>
         </article>
         <article className="simple-stat">

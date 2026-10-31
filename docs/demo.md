@@ -66,9 +66,9 @@ row carrying the previous hash.
 
 Open **Calibration**.
 
-> 27 hand-labelled calls, 16 true positives, no false positives, two known false negatives: implied
-> threats the lexicon does not catch. We left them in. Gate accuracy is 8 of 8. These numbers are
-> computed by the same engine that audits production calls, not typed into a slide.
+> 27 synthetic calls we labelled ourselves: 16 of 16 flags matched our labels, no false positives,
+> two known misses. This is a pilot, not an independent benchmark. The numbers are computed by the
+> same engine that audits production calls, not typed into a slide.
 
 **2:35 — the AI layer.**
 

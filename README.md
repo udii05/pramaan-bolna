@@ -183,7 +183,8 @@ Deterministic scanners always run. The LLM never replaces them.
 
 ## Accuracy
 
-From the seeded, hand-labelled corpus of 27 calls:
+From the seeded, synthetic corpus of 27 calls, hand-labelled by the builder (not an independent
+annotator):
 
 - Post-call precision **100%** (16 true positives, 0 false positives)
 - Post-call recall **88.9%** (2 false negatives: `call-017` and `call-021`, implied threats
@@ -191,9 +192,9 @@ From the seeded, hand-labelled corpus of 27 calls:
 - Gate accuracy **8/8**
 
 These numbers are computed at request time by the same engine that audits production calls. They
-are enough to catch a broken rule, not enough to claim production accuracy. Sixteen labelled calls
-is the pilot corpus; the target is 300+ with inter-annotator agreement. The LLM mode is not
-calibrated here and the UI says so.
+are a **self-labelled pilot, not an independent benchmark** — enough to catch a broken rule, not
+enough to claim production accuracy. 27 labelled calls is the pilot corpus; the target is 300+ with
+inter-annotator agreement. The LLM mode is not calibrated here and the UI says so.
 
 ## API
 

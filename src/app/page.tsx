@@ -306,8 +306,8 @@ export default async function DashboardPage() {
               </div>
             </div>
             <p className="mt-2 text-[10px] leading-relaxed text-[#7d9197]">
-              Computed from {CALIBRATION_LABELS.length} labelled calls and {GATE_LABELS.length} gate
-              scenarios.
+              Computed from {CALIBRATION_LABELS.length} synthetic, self-labelled calls and{" "}
+              {GATE_LABELS.length} gate scenarios.
             </p>
           </section>
         </aside>
