@@ -43,7 +43,8 @@ Open **Calls → call-004**.
 
 > The agent verified identity, then said: "Agar aaj payment nahi hua to hum police bhej denge."
 > The quote is highlighted in the transcript. The finding is critical, so the breaker paused the
-> campaign and blocked the contact. That is the campaign page you saw a minute ago.
+> Early bucket campaign and blocked the contact. Q3 has its own pause-and-resume story: call-007
+> paused it, compliance reviewed it, and it resumed while the affected contact stayed blocked.
 
 Click the timestamp. If a recording is attached, audio seeks to the sentence.
 
